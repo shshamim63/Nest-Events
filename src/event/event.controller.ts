@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   ParseUUIDPipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { EventService } from './event.service';
 import { CreateEventDto, EventResponseDto, UpdateEventDto } from './event.dto';
@@ -17,29 +18,29 @@ export class EventsController {
   constructor(private readonly eventService: EventService) {}
 
   @Get()
-  findAll(): EventResponseDto[] {
-    return this.eventService.findAll();
+  async findAll(): Promise<EventResponseDto[]> {
+    return await this.eventService.findAll();
   }
 
   @Get(':id/stalls')
-  getEventsStalls(@Param('id') id: string) {
+  getEventsStalls(@Param('id', ParseIntPipe) id: string) {
     return this.eventService.getEventStall(id);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     const event = this.eventService.findOne(id);
     return event;
   }
 
   @Post()
-  create(@Body() input: CreateEventDto) {
-    return this.eventService.addEvent(input);
+  create(@Body() body: CreateEventDto) {
+    return this.eventService.addEvent(body);
   }
 
   @Patch(':id')
-  update(@Param('id', ParseUUIDPipe) id, @Body() input: UpdateEventDto) {
-    return this.eventService.updateEvent(id, input);
+  update(@Param('id', ParseIntPipe) id, @Body() body: UpdateEventDto) {
+    return this.eventService.updateEvent(id, body);
   }
 
   @Delete(':id')

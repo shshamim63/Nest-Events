@@ -1,40 +1,67 @@
 import { Injectable } from '@nestjs/common';
-import { v4 as uuid } from 'uuid';
 import { EventResponseDto } from './event.dto';
 import { StallService } from 'src/stall/stall.service';
+import { PrismaService } from 'src/prisma/prisma.service';
+
+interface CreateEventParams {
+  name: string;
+  address: string;
+  description: string;
+  creator_id: number;
+  when: string;
+}
 
 @Injectable()
 export class EventService {
   private readonly events = [];
 
-  constructor(private readonly stallService: StallService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly stallService: StallService,
+  ) {}
 
-  addEvent(input): EventResponseDto {
-    const newEvent = {
-      ...input,
-      id: uuid(),
-      when: new Date(input.when),
-      created_at: new Date(),
-      updated_at: new Date(),
-    };
-    this.events.push(newEvent);
-    return new EventResponseDto(newEvent);
+  async addEvent({ name, address, when, description }: CreateEventParams) {
+    const event = await this.prismaService.event.create({
+      data: {
+        name: name,
+        address: address,
+        when: new Date(when),
+        description: description,
+        creator_id: 1,
+      },
+    });
+    return new EventResponseDto(event);
   }
 
   remove(id) {
     this.events.filter((event) => event.id !== id);
   }
 
-  findAll(): EventResponseDto[] {
-    return this.events.map((event) => new EventResponseDto(event));
+  async findAll(): Promise<EventResponseDto[]> {
+    return (
+      await this.prismaService.event.findMany({
+        select: {
+          id: true,
+          name: true,
+          address: true,
+          description: true,
+          when: true,
+          stalls: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      })
+    ).map((event) => new EventResponseDto(event));
   }
 
-  findOne(id: string): EventResponseDto {
-    const event = this.events.find((event) => event.id === id);
+  async findOne(id: number) {
+    const event = await this.prismaService.event.findFirst({ where: { id } });
     return new EventResponseDto(event);
   }
 
-  updateEvent(id, input): EventResponseDto {
+  updateEvent(id, input) {
     const index = this.events.findIndex((event) => event.id === id);
     const updatedEvent = {
       ...this.events[index],

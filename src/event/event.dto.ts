@@ -1,8 +1,15 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { Exclude, Expose } from 'class-transformer';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+import { Exclude, Expose, Type } from 'class-transformer';
 
 export class EventResponseDto {
-  id: string;
+  id: number;
   name: string;
   address: string;
   description: string;
@@ -18,8 +25,16 @@ export class EventResponseDto {
     return this.updated_at;
   }
 
+  @Expose({ name: 'creatorId' })
+  transformCreatorId() {
+    return this.creator_id;
+  }
+
   @Exclude()
   created_at: Date;
+
+  @Exclude()
+  creator_id: number;
 
   @Exclude()
   updated_at: Date;
@@ -27,6 +42,16 @@ export class EventResponseDto {
   constructor(partial: Partial<EventResponseDto>) {
     Object.assign(this, partial);
   }
+}
+
+class Stall {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  stall_number: number;
 }
 
 export class CreateEventDto {
@@ -42,9 +67,19 @@ export class CreateEventDto {
   @IsNotEmpty()
   description: string;
 
+  @IsNumber()
+  creator_id: number;
+
   @IsString()
   @IsNotEmpty()
   when: string;
+
+  @IsArray()
+  @ValidateNested({
+    each: true,
+  })
+  @Type(() => Stall)
+  stalls: Stall[];
 }
 
 export class UpdateEventDto {
@@ -67,4 +102,7 @@ export class UpdateEventDto {
   @IsNotEmpty()
   @IsOptional()
   when: string;
+
+  @IsNumber()
+  creator_id: number;
 }
