@@ -6,6 +6,8 @@ import { EventModule } from './event/event.module';
 import { StallModule } from './stall/stall.module';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
+import { UserInterceptor } from './user/interceptor/user.interceptor';
+import { AuthGuard } from './guards/auth.guard';
 
 @Module({
   imports: [UserModule, EventModule, StallModule, ConfigModule.forRoot()],
@@ -15,6 +17,14 @@ import { ConfigModule } from '@nestjs/config';
     {
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: UserInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuthGuard,
     },
   ],
 })

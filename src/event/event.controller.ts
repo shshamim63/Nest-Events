@@ -7,11 +7,15 @@ import {
   Param,
   Patch,
   Post,
-  ParseUUIDPipe,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { EventService } from './event.service';
 import { CreateEventDto, EventResponseDto, UpdateEventDto } from './event.dto';
+import { User } from 'src/user/decorators/user.decorator';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { Roles } from 'src/decorators/role.decorator';
+import { UserType } from '@prisma/client';
 
 @Controller('events')
 export class EventsController {
@@ -22,20 +26,16 @@ export class EventsController {
     return await this.eventService.findAll();
   }
 
-  @Get(':id/stalls')
-  getEventsStalls(@Param('id', ParseIntPipe) id: string) {
-    return this.eventService.getEventStall(id);
-  }
-
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     const event = this.eventService.findOne(id);
     return event;
   }
 
+  @Roles(UserType.ADMIN)
   @Post()
-  create(@Body() body: CreateEventDto) {
-    return this.eventService.addEvent(body);
+  create(@Body() body: CreateEventDto, @User() user) {
+    return this.eventService.addEvent(body, user.id);
   }
 
   @Patch(':id')
@@ -45,7 +45,7 @@ export class EventsController {
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id', ParseUUIDPipe) id) {
+  remove(@Param('id', ParseIntPipe) id) {
     return this.eventService.remove(id);
   }
 }

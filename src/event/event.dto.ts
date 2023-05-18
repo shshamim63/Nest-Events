@@ -86,23 +86,24 @@ export class UpdateEventDto {
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  name: string;
+  name?: string;
 
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  address: string;
+  address?: string;
 
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  description: string;
+  description?: string;
 
   @IsString()
   @IsNotEmpty()
   @IsOptional()
-  when: string;
+  when?: string;
 
   @IsNumber()
-  creator_id: number;
+  @IsOptional()
+  creator_id?: number;
 }
