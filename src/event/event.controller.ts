@@ -8,12 +8,10 @@ import {
   Patch,
   Post,
   ParseIntPipe,
-  UseGuards,
 } from '@nestjs/common';
 import { EventService } from './event.service';
 import { CreateEventDto, EventResponseDto, UpdateEventDto } from './event.dto';
 import { User } from 'src/user/decorators/user.decorator';
-import { AuthGuard } from 'src/guards/auth.guard';
 import { Roles } from 'src/decorators/role.decorator';
 import { UserType } from '@prisma/client';
 
@@ -39,13 +37,17 @@ export class EventsController {
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id, @Body() body: UpdateEventDto) {
+  update(
+    @Param('id', ParseIntPipe) id,
+    @Body() body: UpdateEventDto,
+    @User() user,
+  ) {
     return this.eventService.updateEvent(id, body);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id', ParseIntPipe) id) {
+  remove(@Param('id', ParseIntPipe) id, @User() user) {
     return this.eventService.remove(id);
   }
 }
