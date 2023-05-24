@@ -70,13 +70,13 @@ export class AuthService {
 
     if (!isValid) throw new UnauthorizedException();
 
-    const token = this.generateToken({ id: user.id, email: email });
+    const token = await this.generateToken({ id: user.id, email: email });
     return {
       first_name: user.first_name,
       last_name: user.last_name,
       email: email,
       phone: user.phone,
-      token,
+      ...token,
     };
   }
 

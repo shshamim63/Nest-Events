@@ -1,16 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { StallResponseDto } from './stall.dto';
+import { StallResponseDto } from 'src/event-stall/event-stall.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class StallService {
-  private readonly stalls = [];
-  getStalls(id = null) {
-    if (id) {
-      return this.stalls
-        .filter((stall) => stall.event_id === id)
-        .map((stall) => new StallResponseDto(stall));
-    } else {
-      return this.stalls.map((stall) => new StallResponseDto(stall));
-    }
+  constructor(private readonly prismaService: PrismaService) {}
+
+  async getStall(stallId: number) {
+    const stall = await this.prismaService.stall.findUnique({
+      where: { id: stallId },
+    });
+    return new StallResponseDto(stall);
   }
 }

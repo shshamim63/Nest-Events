@@ -1,16 +1,25 @@
 import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { EventModule } from './event/event.module';
-import { StallModule } from './stall/stall.module';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { UserInterceptor } from './user/interceptor/user.interceptor';
 import { AuthGuard } from './guards/auth.guard';
+import { PrismaModule } from './prisma/prisma.module';
+import { AppRouteModule } from './app-route.module';
+import { StallModule } from './stall/stall.module';
 
 @Module({
-  imports: [UserModule, EventModule, StallModule, ConfigModule.forRoot()],
+  imports: [
+    UserModule,
+    EventModule,
+    PrismaModule,
+    AppRouteModule,
+    StallModule,
+    ConfigModule.forRoot(),
+  ],
   controllers: [AppController],
   providers: [
     AppService,
@@ -23,7 +32,7 @@ import { AuthGuard } from './guards/auth.guard';
       useClass: UserInterceptor,
     },
     {
-      provide: APP_INTERCEPTOR,
+      provide: APP_GUARD,
       useClass: AuthGuard,
     },
   ],
