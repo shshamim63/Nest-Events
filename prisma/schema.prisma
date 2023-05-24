@@ -21,6 +21,7 @@ model User {
   updated_at      DateTime    @updatedAt
   user_type       UserType
   events          Event[]
+  stalls          Stall[]
 }
 
 enum UserType {
@@ -45,11 +46,14 @@ model Event {
 model Stall {
   id              Int         @id @default(autoincrement())
   name            String
-  owner           String
   event           Event       @relation(fields: [event_id], references: [id])
   event_id        Int
-  owner_id        Int
-  stall_number    Int
+  operator        User        @relation(fields: [operator_id], references: [id])
+  operator_id     Int
+  occupied        Boolean     @default(false)       
+  length          Int
+  width           Int
+  floor           Int
   created_at      DateTime    @default(now())
   updated_at      DateTime    @updatedAt
 }
