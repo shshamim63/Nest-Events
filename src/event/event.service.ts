@@ -1,23 +1,20 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { EventResponseDto } from './event.dto';
-import { StallService } from 'src/stall/stall.service';
+import { EventStallService } from 'src/event-stall/event-stall.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 interface CreateEventParams {
   name: string;
   address: string;
   description: string;
-  creator_id: number;
   when: string;
 }
 
 @Injectable()
 export class EventService {
-  private readonly events = [];
-
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly stallService: StallService,
+    private readonly stallService: EventStallService,
   ) {}
 
   async addEvent(

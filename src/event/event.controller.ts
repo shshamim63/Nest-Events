@@ -15,7 +15,7 @@ import { User } from 'src/user/decorators/user.decorator';
 import { Roles } from 'src/decorators/role.decorator';
 import { UserType } from '@prisma/client';
 
-@Controller('events')
+@Controller('/')
 export class EventsController {
   constructor(private readonly eventService: EventService) {}
 
@@ -36,18 +36,16 @@ export class EventsController {
     return this.eventService.addEvent(body, user.id);
   }
 
+  @Roles(UserType.ADMIN)
   @Patch(':id')
-  update(
-    @Param('id', ParseIntPipe) id,
-    @Body() body: UpdateEventDto,
-    @User() user,
-  ) {
+  update(@Param('id', ParseIntPipe) id, @Body() body: UpdateEventDto) {
     return this.eventService.updateEvent(id, body);
   }
 
+  @Roles(UserType.ADMIN)
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id', ParseIntPipe) id, @User() user) {
+  remove(@Param('id', ParseIntPipe) id) {
     return this.eventService.remove(id);
   }
 }

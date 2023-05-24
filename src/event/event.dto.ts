@@ -1,12 +1,5 @@
-import {
-  IsArray,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
-import { Exclude, Expose, Type } from 'class-transformer';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Exclude, Expose } from 'class-transformer';
 
 export class EventResponseDto {
   id: number;
@@ -44,16 +37,6 @@ export class EventResponseDto {
   }
 }
 
-class Stall {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
-  @IsNotEmpty()
-  @IsNumber()
-  stall_number: number;
-}
-
 export class CreateEventDto {
   @IsString()
   @IsNotEmpty()
@@ -67,19 +50,9 @@ export class CreateEventDto {
   @IsNotEmpty()
   description: string;
 
-  @IsNumber()
-  creator_id: number;
-
   @IsString()
   @IsNotEmpty()
   when: string;
-
-  @IsArray()
-  @ValidateNested({
-    each: true,
-  })
-  @Type(() => Stall)
-  stalls: Stall[];
 }
 
 export class UpdateEventDto {
