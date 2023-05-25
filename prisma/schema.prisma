@@ -10,9 +10,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserType {
+  ADMIN
+  VISITOR
+  OPERATOR
+}
+
 model User {
   id              Int         @id @default(autoincrement())
-  first_name     String
+  first_name      String
   last_name       String
   email           String      @unique
   password        String
@@ -22,12 +28,9 @@ model User {
   user_type       UserType
   events          Event[]
   stalls          Stall[]
-}
+  stallstuff      StallStuff?
 
-enum UserType {
-  ADMIN
-  VISITOR
-  OPERATOR
+  @@index([email])
 }
 
 model Event {
@@ -48,7 +51,7 @@ model Stall {
   name            String
   event           Event       @relation(fields: [event_id], references: [id])
   event_id        Int
-  operator        User        @relation(fields: [operator_id], references: [id])
+  operator        User?        @relation(fields: [operator_id], references: [id])
   operator_id     Int
   occupied        Boolean     @default(false)       
   length          Int
@@ -56,4 +59,13 @@ model Stall {
   floor           Int
   created_at      DateTime    @default(now())
   updated_at      DateTime    @updatedAt
+  stallStuffs     StallStuff[]
+}
+
+model StallStuff {
+  id              Int          @id @default(autoincrement())
+  stall           Stall        @relation(fields: [stall_id], references: [id])
+  stall_id        Int
+  staff           User         @relation(fields: [staff_id], references: [id])
+  staff_id        Int          @unique
 }
