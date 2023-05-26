@@ -1,7 +1,10 @@
-import { Injectable, NotAcceptableException } from '@nestjs/common';
+import {
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { StallResponseDto } from './event-stall.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { NotFoundError } from 'rxjs';
 
 interface CreateStallParams {
   name: string;
@@ -11,6 +14,13 @@ interface CreateStallParams {
   operatorId: number;
 }
 
+interface UpdateStallParams {
+  name?: string;
+  length?: number;
+  width?: number;
+  floor?: number;
+  updatedEventId?: number;
+}
 interface UserInfo {
   id: number;
   email: string;
@@ -32,7 +42,7 @@ export class EventStallService {
       },
     });
 
-    if (!event) throw new NotFoundError('Event does not exist');
+    if (!event) throw new NotFoundException('Event does not exist');
 
     let operator: UserInfo;
     if (body.operatorId) {
@@ -69,5 +79,44 @@ export class EventStallService {
         },
       })
     ).map((stall) => new StallResponseDto(stall));
+  }
+
+  async unallocateStall(id, userId: number) {
+    const data = {
+      operator_id: userId,
+      occufied: false,
+    };
+
+    const unallocateStall = await this.prismaService.stall.update({
+      where: { id: id },
+      data: data,
+    });
+
+    return new StallResponseDto(unallocateStall);
+  }
+
+  async updateStall(eventId: number, id, body: UpdateStallParams) {
+    if (body.updatedEventId && body.updatedEventId !== eventId) {
+      const updatedEvent = this.prismaService.event.findUnique({
+        where: { id: eventId },
+      });
+      if (!updatedEvent)
+        throw new NotFoundException('Updated event does not exist');
+    }
+
+    const data = {
+      ...(body.name && { name: body.name }),
+      ...(body.floor && { floor: body.floor }),
+      ...(body.length && { length: body.length }),
+      ...(body.width && { widt: body.width }),
+      ...(body.updatedEventId && { event_id: body.updatedEventId }),
+      ...(body.updatedEventId && { occupied: true }),
+    };
+
+    const updatedStall = await this.prismaService.stall.update({
+      where: { id: id },
+      data: data,
+    });
+    return new StallResponseDto(updatedStall);
   }
 }

@@ -4,10 +4,15 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { EventStallService } from './event-stall.service';
-import { CreateStallDto, StallResponseDto } from './event-stall.dto';
+import {
+  CreateStallDto,
+  StallResponseDto,
+  UpdateStallDto,
+} from './event-stall.dto';
 import { Roles } from 'src/decorators/role.decorator';
 import { UserType } from '@prisma/client';
 import { User } from 'src/user/decorators/user.decorator';
@@ -32,5 +37,21 @@ export class EventStallController {
     @Param('eventId', ParseIntPipe) eventId: number,
   ): Promise<StallResponseDto[]> {
     return this.eventStallService.getStalls(eventId);
+  }
+
+  @Roles(UserType.ADMIN)
+  @Patch(':id')
+  updateStall(
+    @Param('eventId', ParseIntPipe) eventId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: UpdateStallDto,
+  ): Promise<StallResponseDto> {
+    return this.eventStallService.updateStall(eventId, id, body);
+  }
+
+  @Roles(UserType.ADMIN)
+  @Patch('/:id/unallocate')
+  unallocateStall(@Param('id', ParseIntPipe) id: number, @User() user) {
+    return this.eventStallService.unallocateStall(id, user.id);
   }
 }
