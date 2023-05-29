@@ -6,6 +6,7 @@ import { UserType } from '@prisma/client';
 import {
   ConflictException,
   InternalServerErrorException,
+  UnauthorizedException,
 } from '@nestjs/common';
 
 describe('AuthService', () => {
@@ -71,7 +72,7 @@ describe('AuthService', () => {
       });
     });
 
-    it('Should throw conflict exception when user with email already exist', async () => {
+    it('Should throw conflict exception when user with email already exist', () => {
       const prismaFindUnique = jest.fn().mockReturnValue(true);
       jest
         .spyOn(prismaService.user, 'findUnique')
@@ -80,7 +81,7 @@ describe('AuthService', () => {
       expect(service.signup(userBody)).rejects.toThrowError(ConflictException);
     });
 
-    it('Should throw internal server exception when prisma service failed to save record', async () => {
+    it('Should throw internal server exception when prisma service failed to save record', () => {
       const mockBcryptHash = jest.fn().mockReturnValue('123456789');
 
       jest.spyOn(bcrypt, 'hash').mockImplementation(mockBcryptHash);
@@ -91,6 +92,49 @@ describe('AuthService', () => {
       expect(service.signup(userBody)).rejects.toThrowError(
         InternalServerErrorException,
       );
+    });
+  });
+
+  describe('login', () => {
+    const loginCredential = {
+      email: 'shshamim63@gmail.com',
+      password: '123456789',
+    };
+    it('Should thorw unauthorized exception when user with email does not exist', () => {
+      const prismaFindUnique = jest.fn().mockReturnValue(false);
+      jest
+        .spyOn(prismaService.user, 'findUnique')
+        .mockImplementation(prismaFindUnique);
+
+      expect(service.login(loginCredential)).rejects.toThrowError(
+        UnauthorizedException,
+      );
+    });
+
+    it('Should throw unauthorized exception when password is invalid', () => {
+      const prismaFindUnique = jest.fn().mockReturnValue(true);
+      const mockBcryptCompare = jest.fn().mockReturnValue(false);
+      jest
+        .spyOn(prismaService.user, 'findUnique')
+        .mockImplementation(prismaFindUnique);
+
+      jest.spyOn(bcrypt, 'compare').mockImplementation(mockBcryptCompare);
+
+      expect(service.login(loginCredential)).rejects.toThrowError(
+        UnauthorizedException,
+      );
+    });
+
+    it('Should provide response with containing token property', async () => {
+      const prismaFindUnique = jest.fn().mockReturnValue(true);
+      const mockBcryptCompare = jest.fn().mockReturnValue(true);
+      jest
+        .spyOn(prismaService.user, 'findUnique')
+        .mockImplementation(prismaFindUnique);
+
+      jest.spyOn(bcrypt, 'compare').mockImplementation(mockBcryptCompare);
+      const response = await service.login(loginCredential);
+      expect(response.token).toBeTruthy();
     });
   });
 });
