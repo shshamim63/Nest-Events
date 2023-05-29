@@ -2,6 +2,7 @@ import * as bcrypt from 'bcrypt';
 import {
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -41,21 +42,26 @@ export class AuthService {
     if (userExist) throw new ConflictException();
 
     const hash = await bcrypt.hash(password, this.saltOrRounds);
-    const user = await this.prismaService.user.create({
-      data: {
-        email,
-        first_name,
-        last_name,
-        password: hash,
-        phone: phone,
-        user_type: UserType.VISITOR,
-      },
-    });
 
-    return await this.generateToken({
-      id: user.id,
-      email,
-    });
+    try {
+      const user = await this.prismaService.user.create({
+        data: {
+          email,
+          first_name,
+          last_name,
+          password: hash,
+          phone: phone,
+          user_type: UserType.VISITOR,
+        },
+      });
+
+      return await this.generateToken({
+        id: user.id,
+        email,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('Server failed to process data');
+    }
   }
 
   async login({ email, password }: LoginParams) {
