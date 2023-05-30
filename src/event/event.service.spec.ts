@@ -29,6 +29,10 @@ describe('EventService', () => {
           useValue: {
             event: {
               create: jest.fn().mockReturnValue(eventResponse),
+              delete: jest.fn().mockReturnValue(null),
+            },
+            stall: {
+              deleteMany: jest.fn().mockReturnValue(null),
             },
           },
         },
@@ -62,7 +66,6 @@ describe('EventService', () => {
         .mockImplementation(mockCreateEvent);
 
       const response = await service.addEvent(eventParams, 1);
-      console.log(response);
       expect(mockCreateEvent).toBeCalledWith({
         data: {
           ...eventParams,
@@ -79,6 +82,51 @@ describe('EventService', () => {
         created_at: expect.any(Date),
         updated_at: expect.any(Date),
         creator_id: 1,
+      });
+    });
+  });
+
+  describe('remove', () => {
+    it('Should raise internal server error exception when server fails to remove stalls', async () => {
+      jest.spyOn(prismaService.stall, 'deleteMany').mockImplementation(() => {
+        throw new Error();
+      });
+      await expect(service.remove(1)).rejects.toThrowError(
+        InternalServerErrorException,
+      );
+    });
+
+    it('Should raise internal server error exception when server fails to remove event', async () => {
+      const mockRemoveStall = jest.fn().mockReturnValue(true);
+      jest
+        .spyOn(prismaService.stall, 'deleteMany')
+        .mockImplementation(mockRemoveStall);
+      jest.spyOn(prismaService.event, 'delete').mockImplementation(() => {
+        throw new Error();
+      });
+      await expect(service.remove(1)).rejects.toThrowError(
+        InternalServerErrorException,
+      );
+    });
+    it('Should resolve request and delete event along with available stalls under the event', async () => {
+      const mockRemoveStall = jest.fn().mockReturnValue(true);
+      const mockRemoveEvent = jest.fn().mockReturnValue(true);
+      jest
+        .spyOn(prismaService.stall, 'deleteMany')
+        .mockImplementation(mockRemoveStall);
+      jest
+        .spyOn(prismaService.event, 'delete')
+        .mockImplementation(mockRemoveEvent);
+      await service.remove(1);
+      expect(mockRemoveStall).toBeCalledWith({
+        where: {
+          event_id: 1,
+        },
+      });
+      expect(mockRemoveEvent).toBeCalledWith({
+        where: {
+          id: 1,
+        },
       });
     });
   });

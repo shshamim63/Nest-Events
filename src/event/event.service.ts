@@ -40,17 +40,23 @@ export class EventService {
   }
 
   async remove(id: number) {
-    await this.prismaService.stall.deleteMany({
-      where: {
-        event_id: id,
-      },
-    });
+    try {
+      await this.prismaService.stall.deleteMany({
+        where: {
+          event_id: id,
+        },
+      });
 
-    await this.prismaService.event.delete({
-      where: {
-        id,
-      },
-    });
+      await this.prismaService.event.delete({
+        where: {
+          id,
+        },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Server could not complete operation',
+      );
+    }
   }
 
   async findAll(): Promise<EventResponseDto[]> {
