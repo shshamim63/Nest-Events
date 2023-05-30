@@ -16,7 +16,7 @@ import { Roles } from 'src/decorators/role.decorator';
 import { UserType } from '@prisma/client';
 
 @Controller('/')
-export class EventsController {
+export class EventController {
   constructor(private readonly eventService: EventService) {}
 
   @Get()
