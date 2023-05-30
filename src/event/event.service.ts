@@ -1,6 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { EventResponseDto } from './event.dto';
-import { EventStallService } from 'src/event-stall/event-stall.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 interface CreateEventParams {
@@ -12,25 +15,28 @@ interface CreateEventParams {
 
 @Injectable()
 export class EventService {
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly stallService: EventStallService,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async addEvent(
     { name, address, when, description }: CreateEventParams,
     userId: number,
   ) {
-    const event = await this.prismaService.event.create({
-      data: {
-        name: name,
-        address: address,
-        when: new Date(when),
-        description: description,
-        creator_id: userId,
-      },
-    });
-    return new EventResponseDto(event);
+    try {
+      const event = await this.prismaService.event.create({
+        data: {
+          name: name,
+          address: address,
+          when: new Date(when),
+          description: description,
+          creator_id: userId,
+        },
+      });
+      return new EventResponseDto(event);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Server could not complete operation',
+      );
+    }
   }
 
   async remove(id: number) {
