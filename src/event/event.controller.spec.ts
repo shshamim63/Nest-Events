@@ -7,6 +7,18 @@ describe('EventController', () => {
   let controller: EventController;
   let eventService: EventService;
 
+  const eventParams = {
+    name: 'Testing Event',
+    address: 'South Building',
+    description: 'Tech event',
+    when: new Date().toString(),
+  };
+
+  const user = {
+    id: 1,
+    email: 'test@demo.com',
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [EventController],
@@ -17,6 +29,8 @@ describe('EventController', () => {
             findAll: jest.fn().mockReturnValue([]),
             findOne: jest.fn().mockReturnValue({}),
             addEvent: jest.fn().mockReturnValue({}),
+            updateEvent: jest.fn().mockReturnValue({}),
+            remove: jest.fn().mockReturnValue(null),
           },
         },
         PrismaService,
@@ -46,16 +60,6 @@ describe('EventController', () => {
   });
 
   describe('create', () => {
-    const eventParams = {
-      name: 'Testing Event',
-      address: 'South Building',
-      description: 'Tech event',
-      when: new Date().toString(),
-    };
-    const user = {
-      id: 1,
-      email: 'test@demo.com',
-    };
     it('Should call the create method with the correct parameters', async () => {
       const mockAddEvent = jest.fn().mockReturnValue({
         ...eventParams,
@@ -66,6 +70,29 @@ describe('EventController', () => {
       jest.spyOn(eventService, 'addEvent').mockImplementation(mockAddEvent);
       await controller.create(eventParams, user);
       expect(mockAddEvent).toBeCalledTimes(1);
+    });
+  });
+
+  describe('update', () => {
+    it('Should call the update method when receives correct parameters', async () => {
+      const mockUpdate = jest.fn().mockReturnValue({
+        ...eventParams,
+        id: 1,
+        createAt: new Date(),
+        updatedAt: new Date(),
+      });
+      jest.spyOn(eventService, 'updateEvent').mockImplementation(mockUpdate);
+      await controller.update(1, eventParams);
+      expect(mockUpdate).toBeCalledTimes(1);
+    });
+  });
+
+  describe('remove', () => {
+    it('Should call the remove method when recives correct id', async () => {
+      const mockRemove = jest.fn().mockReturnValue(null);
+      jest.spyOn(eventService, 'remove').mockImplementation(mockRemove);
+      await controller.remove(1);
+      expect(mockRemove).toBeCalledWith(1);
     });
   });
 });
