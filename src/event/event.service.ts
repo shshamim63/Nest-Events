@@ -63,7 +63,7 @@ export class EventService {
     }
   }
 
-  async findAll(page = 0, limit = 20): Promise<EventResponseDto[]> {
+  async findAll(page: number, limit: number): Promise<EventResponseDto[]> {
     return (
       await this.prismaService.event.findMany({
         select: {

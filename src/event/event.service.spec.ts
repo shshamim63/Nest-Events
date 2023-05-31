@@ -24,6 +24,19 @@ describe('EventService', () => {
     updated_at: new Date().toString(),
   };
 
+  const eventList = [
+    {
+      id: 1,
+      name: 'Test',
+      address: 'Testing Venue',
+      when: new Date().toString(),
+      description: 'This is a test event',
+      created_at: new Date(),
+      updated_at: new Date(),
+      stalls: [],
+    },
+  ];
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -34,6 +47,7 @@ describe('EventService', () => {
             event: {
               create: jest.fn().mockReturnValue(eventResponse),
               delete: jest.fn().mockReturnValue(null),
+              findMany: jest.fn().mockReturnValue(eventList),
             },
             stall: {
               deleteMany: jest.fn().mockReturnValue(null),
@@ -150,6 +164,30 @@ describe('EventService', () => {
   });
 
   describe('findAll', () => {
-    it('Should ');
+    it('Should return an array', async () => {
+      const page = 2;
+      const limit = 6;
+      const mockPrismaFinaAll = jest.fn().mockReturnValue(eventList);
+      jest
+        .spyOn(prismaService.event, 'findMany')
+        .mockImplementation(mockPrismaFinaAll);
+      await service.findAll(page, limit);
+      expect(mockPrismaFinaAll).toBeCalledWith({
+        select: {
+          id: expect.any(Boolean),
+          name: expect.any(Boolean),
+          address: expect.any(Boolean),
+          description: expect.any(Boolean),
+          when: expect.any(Boolean),
+          stalls: {
+            select: {
+              name: expect.any(Boolean),
+            },
+          },
+        },
+        skip: page * limit,
+        take: limit,
+      });
+    });
   });
 });

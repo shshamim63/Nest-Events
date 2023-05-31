@@ -45,7 +45,7 @@ describe('EventController', () => {
     it('Should call the findAll method once', async () => {
       const mockFindAll = jest.fn().mockReturnValue([]);
       jest.spyOn(eventService, 'findAll').mockImplementation(mockFindAll);
-      await controller.findAll();
+      await controller.findAll(1, 5);
       expect(mockFindAll).toBeCalledTimes(1);
     });
   });
