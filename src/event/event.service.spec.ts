@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventService } from './event.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { InternalServerErrorException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { POSTGRES_ERROR_CODE } from 'src/prisma/prisma.error.code';
 
 describe('EventService', () => {
   let service: EventService;
@@ -108,6 +112,20 @@ describe('EventService', () => {
         InternalServerErrorException,
       );
     });
+
+    it('Should raise, not found exception when record with id does not exist', async () => {
+      const mockRemoveStall = jest.fn().mockReturnValue(true);
+      jest
+        .spyOn(prismaService.stall, 'deleteMany')
+        .mockImplementation(mockRemoveStall);
+      jest.spyOn(prismaService.event, 'delete').mockImplementation(() => {
+        throw Object.assign(new Error(), {
+          code: POSTGRES_ERROR_CODE.doesNotExist,
+        });
+      });
+      await expect(service.remove(2)).rejects.toThrowError(NotFoundException);
+    });
+
     it('Should resolve request and delete event along with available stalls under the event', async () => {
       const mockRemoveStall = jest.fn().mockReturnValue(true);
       const mockRemoveEvent = jest.fn().mockReturnValue(true);

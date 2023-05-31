@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { EventResponseDto } from './event.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { POSTGRES_ERROR_CODE } from 'src/prisma/prisma.error.code';
 
 interface CreateEventParams {
   name: string;
@@ -53,6 +54,9 @@ export class EventService {
         },
       });
     } catch (error) {
+      if (error.code === POSTGRES_ERROR_CODE.doesNotExist)
+        throw new NotFoundException(`Event does not exist with id: ${id}`);
+
       throw new InternalServerErrorException(
         'Server could not complete operation',
       );
