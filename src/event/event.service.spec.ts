@@ -148,4 +148,8 @@ describe('EventService', () => {
       });
     });
   });
+
+  describe('findAll', () => {
+    it('Should ');
+  });
 });

@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { EventService } from './event.service';
 import { CreateEventDto, EventResponseDto, UpdateEventDto } from './event.dto';
@@ -20,8 +21,11 @@ export class EventController {
   constructor(private readonly eventService: EventService) {}
 
   @Get()
-  async findAll(): Promise<EventResponseDto[]> {
-    return await this.eventService.findAll();
+  async findAll(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ): Promise<EventResponseDto[]> {
+    return await this.eventService.findAll(page, limit);
   }
 
   @Get(':id')
