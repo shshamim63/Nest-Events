@@ -85,8 +85,14 @@ export class EventService {
   }
 
   async findOne(id: number) {
-    const event = await this.prismaService.event.findFirst({ where: { id } });
-    return new EventResponseDto(event);
+    try {
+      const event = await this.prismaService.event.findFirst({ where: { id } });
+      return new EventResponseDto(event);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Server could not complete operation',
+      );
+    }
   }
 
   async updateEvent(id: number, data: Partial<CreateEventParams>) {
