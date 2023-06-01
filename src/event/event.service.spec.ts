@@ -209,7 +209,7 @@ describe('EventService', () => {
       jest.spyOn(prismaService.event, 'findFirst').mockImplementation(() => {
         throw new Error();
       });
-      await expect(service.findOne).rejects.toThrowError(
+      await expect(service.findOne(1)).rejects.toThrowError(
         InternalServerErrorException,
       );
     });
