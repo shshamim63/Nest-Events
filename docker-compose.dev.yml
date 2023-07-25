@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    restart: 'on-failure'
+    ports:
+      - 3000:3000
+    volumes:
+      - /app/node_modules
+      - .:/app
+    networks:
+      - event-server
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+  postgres:
+    image: postgres:13.1
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: example
+    ports:
+      - 5432:5432
+    networks:
+      - event-server
+    volumes:
+      - db:/var/lib/postgresql/data
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - event-server
+networks:
+  event-server:
+volumes:
+  db:
+    driver: local
+  
