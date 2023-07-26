@@ -11,10 +11,10 @@ services:
     volumes:
       - /app/node_modules
       - .:/app
-    networks:
-      - event-server
     depends_on:
       - postgres
+    networks:
+      - serve
     env_file:
       - .env
   postgres:
@@ -22,22 +22,21 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: example
+    networks:
+      - serve
     ports:
       - 5432:5432
-    networks:
-      - event-server
     volumes:
-      - db:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql/data
   adminer:
     image: adminer
     restart: always
+    networks:
+      - serve
     ports:
       - 8080:8080
-    networks:
-      - event-server
-networks:
-  event-server:
 volumes:
-  db:
+  postgres:
     driver: local
-  
+networks:
+  serve:
