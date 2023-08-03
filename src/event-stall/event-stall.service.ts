@@ -84,7 +84,7 @@ export class EventStallService {
   async unallocateStall(id, userId: number) {
     const data = {
       operator_id: userId,
-      occufied: false,
+      occupied: false,
     };
 
     const unallocateStall = await this.prismaService.stall.update({
