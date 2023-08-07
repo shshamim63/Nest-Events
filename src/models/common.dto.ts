@@ -11,6 +11,17 @@ export class ConflictResponse {
   message: string;
 }
 
+export class NotFoundResponse {
+  @ApiProperty({
+    example: 404,
+  })
+  statusCode: number;
+  @ApiProperty({
+    example: 'Not Found',
+  })
+  message: string;
+}
+
 export class InvalidRequestBodyErrorResponse {
   @ApiProperty({
     example: 400,
@@ -37,6 +48,17 @@ export class InternalServerErrorResponse {
   message: string;
   @ApiProperty({
     example: 'Internal Server Error',
+  })
+  error: string;
+}
+
+export class UnauthorizedResponse {
+  @ApiProperty({
+    example: 401,
+  })
+  statusCode: number;
+  @ApiProperty({
+    example: 'Unauthorized',
   })
   error: string;
 }

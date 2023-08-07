@@ -56,9 +56,17 @@ export class SignupDto {
 }
 
 export class LoginDto {
+  @ApiProperty({
+    description: 'Email Address',
+    example: 'demo@gmail.com',
+  })
   @IsEmail()
   email: string;
 
+  @ApiProperty({
+    description: 'Valid password',
+    example: 'example12@23',
+  })
   @IsNotEmpty()
   @IsString()
   password: string;
@@ -68,5 +76,42 @@ export class LoginDto {
 
 export class SignUp {
   @ApiProperty()
+  token: string;
+}
+
+export class Login {
+  @ApiProperty({
+    description: 'First name of the user',
+    type: String,
+    example: 'Demo',
+  })
+  first_name: string;
+
+  @ApiProperty({
+    description: 'Last name of the user',
+    type: String,
+    example: 'User',
+  })
+  last_name: string;
+
+  @ApiProperty({
+    description: 'Email of the user',
+    type: String,
+    example: 'demo@gmail.com',
+  })
+  email: string;
+
+  @ApiProperty({
+    description: 'Phone number of the user',
+    type: String,
+    example: '+01671451201',
+  })
+  phone: string;
+
+  @ApiProperty({
+    description: 'JWT Token',
+    type: String,
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9........',
+  })
   token: string;
 }

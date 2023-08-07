@@ -1,17 +1,22 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { LoginDto, SignUp, SignupDto } from '../user.dto';
+import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Login, LoginDto, SignUp, SignupDto } from '../user.dto';
 import { AuthService } from './auth.service';
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import {
   ConflictResponse,
   InternalServerErrorResponse,
   InvalidRequestBodyErrorResponse,
+  NotFoundResponse,
+  UnauthorizedResponse,
 } from 'src/models/common.dto';
 
 @ApiTags('Auth')
@@ -40,8 +45,21 @@ export class AuthController {
     return this.authService.signup(body);
   }
 
+  @ApiNotFoundResponse({
+    description: 'User does not exist with the email',
+    type: NotFoundResponse,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'When password is invalid',
+    type: UnauthorizedResponse,
+  })
+  @ApiOkResponse({
+    description: 'Successfully logged in',
+    type: Login,
+  })
+  @HttpCode(200)
   @Post('/login')
-  login(@Body() body: LoginDto) {
+  login(@Body() body: LoginDto): Promise<Login> {
     return this.authService.login(body);
   }
 }

@@ -6,6 +6,7 @@ import { UserType } from '@prisma/client';
 import {
   ConflictException,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 
@@ -100,14 +101,14 @@ describe('AuthService', () => {
       email: 'shshamim63@gmail.com',
       password: '123456789',
     };
-    it('Should thorw unauthorized exception when user with email does not exist', () => {
+    it('Should thorw not found exception when user with email does not exist', () => {
       const prismaFindUnique = jest.fn().mockReturnValue(false);
       jest
         .spyOn(prismaService.user, 'findUnique')
         .mockImplementation(prismaFindUnique);
 
       expect(service.login(loginCredential)).rejects.toThrowError(
-        UnauthorizedException,
+        NotFoundException,
       );
     });
 

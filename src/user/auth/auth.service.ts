@@ -3,6 +3,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -69,7 +70,7 @@ export class AuthService {
       where: { email },
     });
 
-    if (!user) throw new UnauthorizedException();
+    if (!user) throw new NotFoundException();
 
     const hashedPassword = user.password;
     const isValid = await bcrypt.compare(password, hashedPassword);
