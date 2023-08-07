@@ -43,9 +43,15 @@ export class SignupDto {
   @MinLength(8)
   password: string;
 
+  @ApiProperty({
+    description: 'Phone number of the user',
+    type: String,
+    example: '+01671451201',
+  })
   @Matches(/^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/, {
     message: 'Phone number is not valid',
   })
+  @IsString()
   phone: string;
 }
 
@@ -63,15 +69,4 @@ export class LoginDto {
 export class SignUp {
   @ApiProperty()
   token: string;
-}
-
-export class ConflictResponse {
-  @ApiProperty({
-    example: 409,
-  })
-  statusCode: number;
-  @ApiProperty({
-    example: 'Conflict',
-  })
-  message: string;
 }
