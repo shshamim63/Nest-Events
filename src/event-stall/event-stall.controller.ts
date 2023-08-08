@@ -16,7 +16,8 @@ import {
 import { Roles } from 'src/decorators/role.decorator';
 import { UserType } from '@prisma/client';
 import { User } from 'src/user/decorators/user.decorator';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('Stalls')
 @Controller('')
 export class EventStallController {
   constructor(private readonly eventStallService: EventStallService) {}
