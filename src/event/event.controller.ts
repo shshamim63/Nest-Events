@@ -15,7 +15,9 @@ import { CreateEventDto, EventResponseDto, UpdateEventDto } from './event.dto';
 import { User } from 'src/user/decorators/user.decorator';
 import { Roles } from 'src/decorators/role.decorator';
 import { UserType } from '@prisma/client';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
+@ApiBearerAuth()
 @ApiTags('Event')
 @Controller('/')
 export class EventController {
