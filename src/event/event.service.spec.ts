@@ -126,7 +126,7 @@ describe('EventService', () => {
       );
     });
 
-    it('Should raise, not found exception when record with id does not exist', async () => {
+    it('Should raise not found exception when record with id does not exist', async () => {
       const mockRemoveStall = jest.fn().mockReturnValue(true);
       jest
         .spyOn(prismaService.stall, 'deleteMany')

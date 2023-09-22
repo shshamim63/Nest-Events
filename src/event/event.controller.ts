@@ -9,13 +9,19 @@ import {
   Post,
   ParseIntPipe,
   Query,
+  DefaultValuePipe,
 } from '@nestjs/common';
 import { EventService } from './event.service';
 import { CreateEventDto, EventResponseDto, UpdateEventDto } from './event.dto';
 import { User } from 'src/user/decorators/user.decorator';
 import { Roles } from 'src/decorators/role.decorator';
 import { UserType } from '@prisma/client';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @ApiBearerAuth()
 @ApiTags('Event')
@@ -24,9 +30,14 @@ export class EventController {
   constructor(private readonly eventService: EventService) {}
 
   @Get()
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiOkResponse({
+    description: 'Successfully logged in',
+  })
   async findAll(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('limit', ParseIntPipe) limit: number,
+    @Query('page', new DefaultValuePipe(0), ParseIntPipe) page?: number,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit?: number,
   ): Promise<EventResponseDto[]> {
     return await this.eventService.findAll(page, limit);
   }
